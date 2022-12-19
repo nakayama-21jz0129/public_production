@@ -1,0 +1,65 @@
+@charset "UTF-8";
+
+/*
+ * order_reg.css
+ * order_reg.jspファイル独自のcssファイル
+ */
+
+main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+}
+#customer {
+  width: 30%;
+  min-width: 300px;
+}
+#order {
+  width: 65%;
+  min-width: 650px;
+}
+#order > .generic_contents {
+  width: 100%;
+}
+.y_top4 {
+  margin-top: 4px;
+}
+#tel_error_msg {
+  text-align: left;
+}
+.lh24 {
+  height: 24px;
+  line-height: 24px;
+}
+tr:nth-child(odd) > td {
+  background: #f5f5f5;
+}
+.fw {
+  font-weight: 700;
+}
+/* === ボタンを表示するエリア ============================== */
+.checkArea {
+  margin: 1px 4px;
+  width: 34px;
+  height: 20px;
+}
+ /* === チェックボックスのラベル（標準） ==================== */
+.checkArea label {
+  display: block;
+  border: 2px solid var(--main-color);
+  height: 20px;
+  cursor: pointer;
+}
+ /* === 移動BOX（標準） ===================================== */
+.checkArea .box {
+  height: 14px;
+  width: 14px;
+  margin: 1px;
+  background: var(--background-color);
+  transition: .3s;
+}
+ /* === ON側のチェックボックスの移動BOX（ONのとき） ========= */
+.checkArea .check:checked + label .box {
+  transform: translateX(100%);
+  background: var(--main-color);
+}

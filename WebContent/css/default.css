@@ -1,0 +1,484 @@
+@charset "UTF-8";
+
+/*
+ * default.css
+ * すべてのjspファイルで共通のcssファイル
+ */
+
+/* HTML要素 */
+html,body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,p,address,blockquote,pre,code,form,fieldset,legend,input,textarea,select,option,button,label,th,td,hr {
+  padding: 0;
+  margin: 0;
+  color: var(--text-color);
+  box-sizing: border-box;
+}
+ol {
+  list-style: none;
+}
+a {
+  text-decoration: none;
+  color: var(--text-color);
+}
+button {
+  border: none;
+  background: none;
+}
+input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+}
+input[type="number"] {
+  -moz-appearance:textfield;
+}
+table {
+  display: table;
+  table-layout: fixed;
+  border: .5px solid var(--text-color);
+  border-collapse: collapse;
+}
+th {
+  height: 30px;
+  line-height: 30px;
+  background: #808080;
+  color: #f3f3f3;
+  font-weight: 700;
+  border: .5px solid var(--text-color);
+}
+td {
+  height: 26px;
+  line-height: 26px;
+  padding: 4px;
+  background: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border: .5px solid var(--text-color);
+}
+table .odd > td {
+  background: var(--background-color);
+}
+
+/* ボディ */
+body {
+  min-height: 100vh;
+  min-width: 1024px;
+  position: relative;
+  padding-bottom: 24px;
+  background: var(--background-color);
+  font-size: 16px;
+}
+
+/* ヘッダー */
+header {
+  width: 100%;
+  height: 96px;
+  background: var(--main-color);
+  display: flex;
+  position: relative;
+}
+header > h1 {
+  width: 30%;
+  height: 96px;
+  max-width: 250px;
+  text-align: center;
+  line-height: 96px;
+}
+header > h1 > img {
+  width: auto;
+  height: 95%;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+header > nav {
+  width: 70%;
+  height: 48px;
+  margin-top: 48px;
+}
+header > nav > ol {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+header > nav > ol > a {
+  width: 12%;
+  max-width: 100px;
+  height: 48px;
+}
+header > nav > ol > a > li {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  line-height: 48px;
+}
+header > nav > ol > a > li[value="true"] {
+  background: var(--dark-main-color);
+}
+header > nav > ol > a > li[value="false"]:hover {
+  background: var(--light-main-color);
+}
+#logout {
+  width: 120px;
+  height: 40px;
+  display: block;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  border-radius: 8px;
+  background: var(--red-color);
+  text-align: center;
+  line-height: 40px;
+  font-size: 20px;
+  font-weight: 700;
+}
+#logout:hover {
+  background: var(--light-red-color);
+}
+#employee {
+  width: 400px;
+  height: 20px;
+  display: block;
+  position: absolute;
+  top: 20px;
+  right: 136px;
+  overflow: hidden;
+  line-height: 20px;
+  text-align: right;
+}
+
+/* フッター */
+footer {
+  width: 100%;
+  height: 24px;
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+}
+footer > div {
+  width: 95%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  border-top: 2px dotted var(--text-color);
+}
+
+/* メイン */
+main {
+  width: 80%;
+  min-width: 1024px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 汎用コンテンツボックス */
+.generic_contents {
+  background: #ffffff;
+  border: 4px solid var(--main-color);
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.g_c_header {
+  width: 100%;
+  height: 36px;
+  font-size: 20px;
+  background: var(--main-color);
+  text-align: center;
+  line-height: 36px;
+}
+.g_c_off {
+  top: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  position: absolute;;
+  text-align: center;
+  line-height: 28px;
+  background: var(--red-color);
+  font-size: 24px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.g_c_inner {
+  width: 90%;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.g_c_inner > .g_c_inner {
+  width: 95%;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+.msg {
+  width: 100%;
+  font-weight: 700;
+  text-align: center;
+  overflow: hidden;
+}
+.error_msg {
+  width: 100%;
+  font-weight: 700;
+  text-align: center;
+  overflow: hidden;
+  color: var(--red-color);
+}
+/* 両端寄せ */
+.g_c_i_flex1 {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+/* 左寄せ */
+.g_c_i_flex2 {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: left;
+}
+/* 中央寄せ */
+.g_c_i_flex3 {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ボタン */
+.button1 {
+  width: 48px;
+  height: 24px;
+  background: var(--main-color);
+  border-radius: 8px;
+  line-height: 24px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.button1:hover {
+  background: var(--light-main-color);
+}
+.button1:disabled {
+  background: var(--light-main-color);
+}
+.button2 {
+  width: 96px;
+  height: 36px;
+  background: var(--main-color);
+  border-radius: 8px;
+  line-height: 36px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.button2:hover {
+  background: var(--light-main-color);
+}
+.button2:disabled {
+  background: var(--light-main-color);
+}
+.button3 {
+  width: 25%;
+  height: 180px;
+  background: var(--main-color);
+  border-radius: 20px;
+  line-height: 180px;
+  font-size: 32px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.button3:hover {
+  background: var(--light-main-color);
+}
+.button3:disabled {
+  background: var(--light-main-color);
+}
+.button4 {
+  width: 24px;
+  height: 24px;
+  background: var(--main-color);
+  border-radius: 8px;
+  line-height: 24px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.button4:hover {
+  background: var(--light-main-color);
+}
+.button4:disabled {
+  background: var(--light-main-color);
+}
+.b_red {
+  background: var(--red-color);
+}
+.b_red:hover {
+  background: var(--light-red-color);
+}
+.b_red:disabled {
+  background: var(--light-main-color);
+}
+.cb_button {
+  display: inline-block;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  height: 24px;
+  border: 2px solid var(--main-color);
+}
+.cb_button label {
+  display: block;
+  margin: 1px;
+  height: 18px;
+  line-height: 18px;
+  background: var(--background-color);
+  cursor: pointer;
+}
+.cb_button input[type="checkbox"] {
+  display: none;
+}
+.cb_button input[type="checkbox"]:checked + label {
+  background: var(--main-color);
+}
+.cb_button input[type="radio"] {
+  display: none;
+}
+.cb_button input[type="radio"]:checked + label {
+  background: var(--main-color);
+}
+
+/* 入出力 */
+.in1 {
+  width: 100%;
+  height: 24px;
+  line-height: 24px;
+  border: 2px solid var(--main-color);
+  margin-top: 4px;
+  margin-bottom: 4px;
+  cursor: pointer;
+}
+.out1 {
+  width: 100%;
+  line-height: 24px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  overflow-wrap: break-word;
+}
+.out_h {
+  border-bottom: 2px solid var(--main-color);
+}
+
+/* サイズ指定用 */
+.w5 {
+  width: 5%;
+}
+.w10 {
+  width: 10%;
+}
+.w15 {
+  width: 15%;
+}
+.w20 {
+  width: 20%;
+}
+.w25 {
+  width: 25%;
+}
+.w30 {
+  width: 30%;
+}
+.w35 {
+  width: 35%;
+}
+.w40 {
+  width: 40%;
+}
+.w48 {
+  width: 48%;
+}
+.w50 {
+  width: 50%;
+}
+.w55 {
+  width: 55%;
+}
+.w65 {
+  width: 65%;
+}
+.w80 {
+  width: 80%;
+}
+.w90 {
+  width: 90%;
+}
+.w100 {
+  width: 100%;
+}
+
+/* 位置指定用 */
+.x_c {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.y_c {
+  display: block;
+  margin-top: auto;
+  margin-bottom: auto;
+}
+.x4 {
+  margin-left: 4px;
+  margin-right: 4px;
+}
+.x12 {
+  margin-left: 12px;
+  margin-right: 12px;
+}
+.y12 {
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+.text_l {
+  text-align: left;
+}
+.text_c {
+  text-align: center;
+}
+.num_r {
+  text-align: right;
+}
+
+/* 表示非表示 */
+.d_n {
+  display: none;
+}
+
+/* ポップアップ */
+.p_background {
+  z-index: 100;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, .4);
+  /* display: flex; */
+
+}
+.popup {
+  z-index: 120;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}

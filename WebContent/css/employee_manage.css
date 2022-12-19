@@ -1,0 +1,55 @@
+@charset "UTF-8";
+
+/*
+ * employee_manage.css
+ * employee_manage.jspファイル独自のcssファイル
+ */
+
+main {
+  margin-top: 28px;
+  margin-bottom: 28px;
+}
+main > article {
+  width: 75%;
+}
+.y_c {
+  text-align: center;
+}
+.w15 > h3 {
+  text-align: center;
+}
+.employee_tr {
+  cursor: pointer;
+}
+.result_popup .msg {
+  margin-bottom: 0;
+}
+.result_popup .error_msg {
+  margin-top: 0;
+}
+/* === ボタンを表示するエリア ============================== */
+.checkArea {
+  margin: 4px auto 4px auto;
+  width: 42px;
+  height: 24px;
+}
+ /* === チェックボックスのラベル（標準） ==================== */
+.checkArea label {
+  display: block;
+  border: 2px solid var(--main-color);
+  height: 24px;
+  cursor: pointer;
+}
+ /* === 移動BOX（標準） ===================================== */
+.checkArea .box {
+  height: 18px;
+  width: 18px;
+  margin: 1px;
+  background: var(--background-color);
+  transition: .3s;
+}
+ /* === ON側のチェックボックスの移動BOX（ONのとき） ========= */
+.checkArea .check:checked + label .box {
+  transform: translateX(100%);
+  background: var(--main-color);
+}

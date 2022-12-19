@@ -1,0 +1,26 @@
+@charset "UTF-8";
+
+/*
+ * customer_manage.css
+ * customer_manage.jspファイル独自のcssファイル
+ */
+
+main {
+  margin-top: 28px;
+  margin-bottom: 28px;
+}
+main > article {
+  width: 75%;
+}
+.y_c {
+  text-align: center;
+}
+.customer_tr {
+  cursor: pointer;
+}
+.result_popup .msg {
+  margin-bottom: 0;
+}
+.result_popup .error_msg {
+  margin-top: 0;
+}

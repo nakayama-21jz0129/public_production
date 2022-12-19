@@ -1,0 +1,19 @@
+@charset "UTF-8";
+
+/*
+ * color_pattern2.css
+ * マネージャ用のカラーパターンを定義しているcssファイル
+ */
+
+/* CSSカスタムプロパティ */
+:root {
+  --main-color: #bbe8a2;
+  --light-main-color: #d8f1c9;
+  --dark-main-color: #9ddd78;
+
+  --red-color: #f0a1b2;
+  --light-red-color: #f6cad3;
+
+  --background-color: #f5f5f5;
+  --text-color: #333;
+}

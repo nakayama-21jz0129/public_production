@@ -1,0 +1,15 @@
+@charset "UTF-8";
+
+/*
+ * main.css
+ * main.jspファイル独自のcssファイル
+ */
+
+main > div {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+.button3 {
+  margin: 12px;
+}

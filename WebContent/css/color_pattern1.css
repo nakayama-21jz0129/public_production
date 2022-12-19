@@ -1,0 +1,19 @@
+@charset "UTF-8";
+
+/*
+ * color_pattern1.css
+ * 従業員用のカラーパターンを定義しているcssファイル
+ */
+
+/* CSSカスタムプロパティ */
+:root {
+  --main-color: #a0d8ef;
+  --light-main-color: #cae9f6;
+  --dark-main-color: #73c6e7;
+
+  --red-color: #f0a1b2;
+  --light-red-color: #f6cad3;
+
+  --background-color: #f5f5f5;
+  --text-color: #333;
+}
