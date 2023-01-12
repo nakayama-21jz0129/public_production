@@ -7,7 +7,7 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>商品管理</title>
+<title>注文登録</title>
 
 <c:choose>
 	<c:when test="${bean.employee.managerFlag}">
@@ -119,7 +119,7 @@
 						<div class="w30">
 							<h3>カテゴリ</h3>
 							<select class="in1" id="category_select">
-								<c:forEach var="obj" items="${bean.productMap}">
+								<c:forEach var="obj" items="${bean.productMapExt}">
 									<option value="${obj.key}">${obj.value.name}</option>
 								</c:forEach>
 							</select>
@@ -147,7 +147,10 @@
 				<div class="g_c_inner g_c_i_flex1 w90">
 					<div class="w48">
 						<h3>適応時間帯割引</h3>
-						<p class="out1" id="time_period_discount">NULL</p>
+						<div class="g_c_inner g_c_i_flex1 w90">
+							<div class="w80">${bean.timePeriodText}</div>
+							<div class="w20">${bean.percentRate}%</div>
+						</div>
 					</div>
 
 					<div class="w48">
@@ -198,7 +201,7 @@
 
 	<footer>
 		<div>
-			<small>&copy; G10 v0.8</small>
+			<small>${bean.copyright}&ensp;&ensp;${bean.version}</small>
 		</div>
 	</footer>
 
@@ -219,10 +222,90 @@
     </article>
   </div>
 
+	<div class="p_background d_n" id="result_popup">
+    <article class="generic_contents popup w30">
+      <h2 class="g_c_header">確認</h2>
+      <div class="g_c_off">×</div>
+      <div class="g_c_inner msg"></div>
+      <div class="g_c_inner error_msg"></div>
+    </article>
+  </div>
+
+	<div class="p_background d_n" id="order_popup">
+    <article class="generic_contents popup w25">
+      <h2 class="g_c_header">確認</h2>
+      <div class="g_c_off">×</div>
+      <div class="g_c_inner msg">注文を確定します</div>
+      <div class="g_c_inner g_c_i_flex1">
+        <button type="button" class="button2 x_c y12 b_red no">いいえ</button>
+        <button type="button" class="button2 x_c y12 yes">はい</button>
+      </div>
+    </article>
+  </div>
+
+	<div class="p_background d_n" id="slip_popup">
+    <article class="generic_contents popup w35">
+      <h2 class="g_c_header">注文伝票</h2>
+      <button type="button" onclick="location.href='../main'" class="g_c_off">×</button>
+			<div class="scroll">
+				<div class="g_c_inner">
+					<h4 class="out1">■ お届け先</h4>
+					<p class="out1">
+						ご住所：<span id="slip_address"></span>
+					</p>
+					<p class="out1">
+						お名前：<span id="slip_name"></span>
+					</p>
+					<p class="out1">
+						電話番号：<span id="slip_tel"></span>
+					</p>
+				</div>
+
+				<div class="w100" id="slip_order"></div>
+
+				<div class="g_c_inner">
+					<div class="out1 g_c_i_flex1">
+						<p>合計金額</p>
+						<p><span id="slip_total_price"></span>円</p>
+					</div>
+					<div class="out1 g_c_i_flex1">
+						<p>割引金額</p>
+						<p><span id="slip_discount_price"></span>円</p>
+					</div>
+					<div class="out1 g_c_i_flex1">
+						<p>消費税</p>
+						<p><span id="slip_tax_price"></span>円</p>
+					</div>
+				</div>
+
+				<div class="g_c_inner">
+					<h4 class="out1 g_c_i_flex1 bill">
+						<p>ご請求金額</p>
+						<p><span id="slip_billing_price"></span>円</p>
+					</h4>
+				</div>
+
+				<div class="g_c_inner">
+					<p class="out1">
+						注文日時&ensp;<span id="slip_time"></span>
+					</p>
+					<p class="out1">
+						注文番号&ensp;<span id="slip_id"></span>
+					</p>
+				</div>
+
+				<div class="g_c_inner g_c_i_flex1">
+					<button type="button" onclick="location.href='../main'" class="button2 x_c y12">閉じる</button>
+				</div>
+			</div>
+
+    </article>
+  </div>
+
 	<script type="text/javascript">
 		const ProductObject = JSON.parse('<%=(String)request.getAttribute("productJson")%>');
-		const DiscountRate = 0.0;
-		const TaxRate = '<%=request.getAttribute("taxRate")%>';
+		const DiscountRate = <%=request.getAttribute("discountRate")%>;
+		const TaxRate = <%=request.getAttribute("taxRate")%>;
 	</script>
 	<script src="../../js/order_reg.js"></script>
 </body>

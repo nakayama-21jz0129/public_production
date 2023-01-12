@@ -13,9 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import conversion.Format;
 import model.Employee;
 
 /**
@@ -32,7 +30,6 @@ public class RegEmployee extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // TODO Auto-generated method stub
-//		response.getWriter().append("Served at: ").append(request.getContextPath());
 
     }
 
@@ -43,61 +40,70 @@ public class RegEmployee extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // TODO Auto-generated method stub
-//		doGet(request, response);
+        
+        // 受信データの形式を指定
         request.setCharacterEncoding("UTF-8");
+        
+        // 送信データの形式を指定
         response.setContentType("application/json");
         response.setHeader("Cache-Control", "nocache");
         response.setCharacterEncoding("UTF-8");
 
-        ObjectMapper mapper = new ObjectMapper();
+        // 送信用Mapを作成
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("result", false);
         responseMap.put("msg", "");
 
+        // セッションを取得
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("employee") != null) {
+            
+            // セッションから従業員データを取得
             Employee employee = (Employee) session.getAttribute("employee");
+            
+            // 権限を確認
             if (employee.isManagerFlag()) {
-                try {
-                    BufferedReader buffer = new BufferedReader(request.getReader());
-                    String requestJson = buffer.readLine();
-                    Map<String, Object> requestMap = mapper.readValue(requestJson, new TypeReference<Map<String, Object>>() {
-                    });
+                
+                // 受信データを取得
+                BufferedReader buffer = new BufferedReader(request.getReader());
+                String requestJson = buffer.readLine();
+                Map<String, Object> requestMap = Format.jsonToMap(requestJson);
+                
+                // 受信データの存在を確認
+                if (requestMap != null) {
                     
-                    if (requestMap != null) {
-                        if (requestMap.containsKey("name") &&
-                            requestMap.containsKey("password") &&
-                            requestMap.containsKey("manager_flag") &&
-                            requestMap.containsKey("use_flag")
-                            ) {
-                            Map<String, Object> regResult =
-                                    employee.regEmployee(
-                                            (String)requestMap.get("name"),
-                                            (String)requestMap.get("password"),
-                                            (boolean)requestMap.get("manager_flag"),
-                                            (boolean)requestMap.get("use_flag"));
-                            if ((boolean)regResult.get("result")) {
+                    // 受信データの要素を確認
+                    if (requestMap.containsKey("name") &&
+                        requestMap.containsKey("password") &&
+                        requestMap.containsKey("manager_flag") &&
+                        requestMap.containsKey("use_flag")
+                        ) {
+                        
+                        // 従業員を登録
+                        switch (employee.reg(
+                                        (String)requestMap.get("name"),
+                                        (String)requestMap.get("password"),
+                                        (boolean)requestMap.get("manager_flag"),
+                                        (boolean)requestMap.get("use_flag"))) {
+                            case 1:
                                 responseMap.replace("result", true);
-                                responseMap.put("employee_list", employee.getMapEmployeeList());
-                            }
-                            responseMap.replace("msg", (String)regResult.get("msg"));
-                        }
-                        else {
-                            responseMap.replace("msg", "データが不足しています");
+                                responseMap.replace("msg", "従業員の登録に成功しました");
+                                responseMap.put("employee_list", employee.getMapArray());
+                                break;
+                            case -1:
+                                responseMap.replace("msg", "既に存在する従業員名は使用できません");
+                                break;
+                            default:
+                                responseMap.replace("msg", "従業員の登録に失敗しました");
                         }
                     }
                     else {
-                        responseMap.replace("msg", "データが存在しません");
+                        responseMap.replace("msg", "データが不足しています");
                     }
-
                 }
-                catch (IllegalArgumentException e) {
-                    responseMap.replace("msg", "データの形式が不適切です");
+                else {
+                    responseMap.replace("msg", "データが存在しません");
                 }
-                catch (ClassCastException e) {
-                    responseMap.replace("msg", "データの型が不適切です");
-                }
-              
             }
             else {
                 responseMap.replace("msg", "権限がが存在しません");
@@ -107,9 +113,9 @@ public class RegEmployee extends HttpServlet {
             responseMap.replace("msg", "セッションが存在しません");
         }
         
-        String responseJson = mapper.writeValueAsString(responseMap);
+        // データの送信
         PrintWriter out = response.getWriter();
-        out.print(responseJson);
+        out.print(Format.mapToJson(responseMap));
     }
 
 }

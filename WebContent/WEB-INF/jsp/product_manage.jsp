@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -66,7 +67,7 @@
 						<h3>カテゴリ</h3>
 						<input type="text" class="in1" list="category_datalist" id="category" maxlength="32">
 						<datalist id="category_datalist">
-							<c:forEach items="${bean.productMap}" var="map">
+							<c:forEach items="${bean.productMapExt}" var="map">
 								<option value="${map.value.name}"></option>
 							</c:forEach>
 						</datalist>
@@ -108,7 +109,7 @@
 						<th class="w20">販売可・不可</th>
 					</tr>
 
-					<c:forEach items="${bean.productMap}" var="map">
+					<c:forEach items="${bean.productMapExt}" var="map">
 						<c:set var="category_name" value="${map.value.name}" />
 						<c:forEach items="${map.value.product}" var="list">
 						    <tr class="product_tr">
@@ -117,7 +118,9 @@
 									</td>
 						    	<td class="product_category">${category_name}</td>
 						    	<td class="product_name">${list.value.name}</td>
-						    	<td class="product_price">${list.value.price}</td>
+						    	<td class="product_price num_r">
+										<fmt:formatNumber value="${list.value.price}" pattern="##,###,###"/>
+									</td>
 						    	<c:choose>
 										<c:when test="${list.value.use_flag}">
 											<td class="use_flag t">可</td>
@@ -142,7 +145,7 @@
 
 	<footer>
 		<div>
-			<small>&copy; G10 v0.8</small>
+			<small>${bean.copyright}&ensp;&ensp;${bean.version}</small>
 		</div>
 	</footer>
 

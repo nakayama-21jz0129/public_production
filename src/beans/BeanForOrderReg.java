@@ -1,37 +1,45 @@
 package beans;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import model.Employee;
-import model.Product;
-import model.Tax;
 
 public class BeanForOrderReg extends AbstractBean {
-    private Map<Integer, Map> productMap = new HashMap<>();
-    private double taxRate;
-    private Product product = new Product();
-    private Tax tax = new Tax();
+    // 表示用
+    private Map<Integer, Map> productMapExt;
+    private String timePeriodText;
+    private int percentRate;
 
+    /**
+     * 引数ありコンストラクタ
+     * @param employee
+     */
     public BeanForOrderReg(Employee employee) {
         super(employee);
     }
 
-    public Map<Integer, Map> getProductMap() {
-        return productMap;
+    // getter・setter
+    public Map<Integer, Map> getProductMapExt() {
+        return productMapExt;
     }
 
-    public void setProductMap() {
-        this.productMap = product.getProductMap(true);
+    public void setProductMapExt(Map<Integer, Map> productMapExt) {
+        this.productMapExt = productMapExt;
     }
 
-    public double getTaxRate() {
-        return taxRate;
+    public String getTimePeriodText() {
+        return timePeriodText;
     }
 
-    public void setTaxRate() {
-        this.taxRate = tax.getRate();
+    public void setTimePeriodText(String timePeriodText) {
+        this.timePeriodText = timePeriodText;
     }
 
-    
+    public int getPercentRate() {
+        return percentRate;
+    }
+
+    public void setPercentRate(int percentRate) {
+        this.percentRate = percentRate;
+    }
 }

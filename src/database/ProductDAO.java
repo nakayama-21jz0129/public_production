@@ -1,39 +1,37 @@
 package database;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class ProductDAO {
-    private Connection conn;
-
-    public ProductDAO() {
-        DbManager dm = DbManager.getDbConMgr();
-        conn = dm.getConn();
-    }
+public class ProductDAO extends AbstractDAO {
     
+    public ProductDAO() {
+        super();
+    }
+
     /**
-     * 
+     * 全商品を返す。
+     * @param bool
      * @return
      */
-    public ArrayList<ProductDTO> getProductList(boolean bool) {
+    public ArrayList<ProductDTO> getArray(boolean bool) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        ArrayList<ProductDTO> productDTOList = new ArrayList<>();
+        ArrayList<ProductDTO> productDTOArray = new ArrayList<>();
 
         String sql = "SELECT id, name, price, product_class_id, use_flag "
-                + "FROM product";
+                + "FROM products";
         if (bool) {
             sql += " WHERE use_flag = 1";
         }
 
         try {
-            pStmt = conn.prepareStatement(sql);
+            pStmt = getConn().prepareStatement(sql);
             rs = pStmt.executeQuery();
             while (rs.next()) {
-                productDTOList.add(
+                productDTOArray.add(
                         new ProductDTO(
                                 rs.getInt("id"),
                                 rs.getString("name"),
@@ -57,26 +55,27 @@ public class ProductDAO {
             }
         }
 
-        return productDTOList;
+        return productDTOArray;
     }
     
     /**
-     * 
+     * 商品をデータベースに登録する。
+     *  一意制約に違反した場合は-1を返す
      * @param name
      * @param price
      * @param productClassId
      * @param useFlag
      * @return
      */
-    public int regProduct(String name, int price, int productClassId, int useFlag) {
+    public int reg(String name, int price, int productClassId, int useFlag) {
         PreparedStatement pStmt = null;
         int row = 0;
 
-        String sql = "INSERT INTO product(name, price, product_class_id, use_flag) "
+        String sql = "INSERT INTO products(name, price, product_class_id, use_flag) "
                 + "VALUES(?, ?, ?, ?)";
 
         try {
-            pStmt = conn.prepareStatement(sql);
+            pStmt = getConn().prepareStatement(sql);
             pStmt.setString(1, name);
             pStmt.setInt(2, price);
             pStmt.setInt(3, productClassId);
@@ -107,19 +106,19 @@ public class ProductDAO {
     }
     
     /**
-     * 
+     * idの一致する商品を削除する。
      * @param id
      * @return
      */
-    public int delProduct(int id) {
+    public int del(int id) {
         PreparedStatement pStmt = null;
         int row = 0;
 
-        String sql = "DELETE FROM product "
+        String sql = "DELETE FROM products "
                 + "WHERE id = ?";
 
         try {
-            pStmt = conn.prepareStatement(sql);
+            pStmt = getConn().prepareStatement(sql);
             pStmt.setInt(1, id);
             row = pStmt.executeUpdate();
             
@@ -144,6 +143,7 @@ public class ProductDAO {
     }
     
     /**
+     * 使ってる？
      * 
      * @param id
      * @return
@@ -154,7 +154,7 @@ public class ProductDAO {
         ProductDTO productDTO = null;
 
         String sql = "SELECT id, name, price, product_class_id, use_flag "
-                + "FROM product "
+                + "FROM products "
                 + "WHERE id = ?";
 
         try {

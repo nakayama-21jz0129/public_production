@@ -22,7 +22,7 @@
   const DelPopup = document.querySelector("#del_popup");
 
   /**
-   * 10行を一ページとして表示する。
+   * 20行を一ページとして表示する。
    */
   function setPage() {
     let page = 0;
@@ -34,7 +34,7 @@
         element.classList.remove("odd");
       }
 
-      if ((Math.floor(page / 10) + 1) != current_page) {
+      if ((Math.floor(page / 20) + 1) != current_page) {
         element.classList.add("d_n");
       }
       else {
@@ -44,7 +44,7 @@
 
     });
     categoryJoin();
-    max_page = (Math.floor((page - 1) / 10) + 1);
+    max_page = (Math.floor((page - 1) / 20) + 1);
     Page.querySelector(".msg").innerHTML = current_page + " / " + max_page;
   };
 
@@ -108,7 +108,8 @@
 
         let td3_element = document.createElement("td");
         td3_element.classList.add("product_price");
-        td3_element.innerHTML = data["product_map"][category_key]["product"][product_id]["price"];
+        td3_element.classList.add("num_r");
+        td3_element.innerHTML = data["product_map"][category_key]["product"][product_id]["price"].toLocaleString();
         tr_element.appendChild(td3_element);
 
         let td4_element = document.createElement("td");
@@ -173,7 +174,6 @@
             }
             categoryName = productTr[index].querySelector(".product_category").innerHTML;
             startIndex = index;
-            index++;
           }
         }
       }
@@ -351,6 +351,5 @@
   });
 
   clickProduct();
-  // showList();
   setPage();
 })();

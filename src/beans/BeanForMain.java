@@ -2,18 +2,14 @@ package beans;
 
 import model.Employee;
 
-public class BeanForMain {
-    private Employee employee;
+public class BeanForMain extends AbstractBean{
 
+    /**
+     * 引数ありコンストラクタ
+     * @param employee
+     */
     public BeanForMain(Employee employee) {
-        this.employee = employee;
+        super(employee);
     }
-
-    public Employee getEmployee() {
-        return employee;
-    }
-
-    public void setEmployee(Employee employee) {
-        this.employee = employee;
-    }
+    
 }

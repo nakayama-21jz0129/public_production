@@ -13,9 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import conversion.Format;
 import model.Customer;
 
 /**
@@ -32,7 +30,6 @@ public class RegCustomer extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // TODO Auto-generated method stub
-//		response.getWriter().append("Served at: ").append(request.getContextPath());
     }
 
     /**
@@ -42,66 +39,73 @@ public class RegCustomer extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // TODO Auto-generated method stub
-//		doGet(request, response);
+
+        // 受信データの形式を指定
         request.setCharacterEncoding("UTF-8");
+        
+        // 送信データの形式を指定
         response.setContentType("application/json");
         response.setHeader("Cache-Control", "nocache");
         response.setCharacterEncoding("UTF-8");
 
-        ObjectMapper mapper = new ObjectMapper();
+        // 送信用Mapを作成
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("result", false);
         responseMap.put("msg", "");
 
+        // セッションを取得
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("employee") != null) {
-            try {
-                BufferedReader buffer = new BufferedReader(request.getReader());
-                String requestJson = buffer.readLine();
-                Map<String, Object> requestMap = mapper.readValue(requestJson,
-                        new TypeReference<Map<String, Object>>() {
-                        });
+            
+            // 受信データを取得
+            BufferedReader buffer = new BufferedReader(request.getReader());
+            String requestJson = buffer.readLine();
+            Map<String, Object> requestMap = Format.jsonToMap(requestJson);
 
-                if (requestMap != null) {
-                    if (requestMap.containsKey("tel") &&
-                            requestMap.containsKey("name") &&
-                            requestMap.containsKey("address")
-                            ) {
-                        Customer customer = new Customer();
-                        Map<String, Object> regResult =
-                                customer.regCustomer(
-                                        (String)requestMap.get("tel"),
-                                        (String)requestMap.get("name"),
-                                        (String)requestMap.get("address"));
-                        if ((boolean)regResult.get("result")) {
+            // 受信データの存在を確認
+            if (requestMap != null) {
+                
+                // 受信データの要素を確認
+                if (requestMap.containsKey("tel") &&
+                        requestMap.containsKey("name") &&
+                        requestMap.containsKey("address")
+                        ) {
+                    
+                    // インスタンスを作成
+                    Customer customer = new Customer();
+                    
+                    // 顧客を登録
+                    switch (customer.reg(
+                            (String)requestMap.get("tel"),
+                            (String)requestMap.get("name"),
+                            (String)requestMap.get("address"))) {
+                        case 1:
                             responseMap.replace("result", true);
-                            responseMap.put("customer_list", customer.getMapCustomerList());
-                        }
-                        responseMap.replace("msg", (String)regResult.get("msg"));
-                    }
-                    else {
-                        responseMap.replace("msg", "データが不足しています");
+                            responseMap.replace("msg", "顧客の登録に成功しました");
+                            responseMap.put("customer_list", customer.getMapArray());
+                            break;
+                        case -1:
+                            responseMap.replace("msg", "既に使用されている電話番号です");
+                            break;
+                        default:
+                            responseMap.replace("msg", "顧客の登録に失敗しました");
                     }
                 }
                 else {
-                    responseMap.replace("msg", "データが存在しません");
+                    responseMap.replace("msg", "データが不足しています");
                 }
-
             }
-            catch (IllegalArgumentException e) {
-                responseMap.replace("msg", "データの形式が不適切です");
-            }
-            catch (ClassCastException e) {
-                responseMap.replace("msg", "データの型が不適切です");
+            else {
+                responseMap.replace("msg", "データが存在しません");
             }
         }
         else {
             responseMap.replace("msg", "セッションが存在しません");
         }
         
-        String responseJson = mapper.writeValueAsString(responseMap);
+        // データの送信
         PrintWriter out = response.getWriter();
-        out.print(responseJson);
+        out.print(Format.mapToJson(responseMap));
     }
 
 }

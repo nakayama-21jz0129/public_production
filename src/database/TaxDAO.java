@@ -1,32 +1,39 @@
 package database;
 
-import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
-public class TaxDAO {
-    private Connection conn;
+public class TaxDAO extends AbstractDAO {
 
     public TaxDAO() {
-        DbManager dm = DbManager.getDbConMgr();
-        conn = dm.getConn();
+        super();
     }
 
-    public double getTaxRate() {
+    /**
+     * 日付から消費税を探す。
+     *  見つからない場合はnullを返す
+     * @param date
+     * @return
+     */
+    public TaxDTO search(Date date) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        double rate = -1.0;
+        TaxDTO taxDTO = null;
 
         String sql = "SELECT rate "
-                + "FROM tax "
-                + "WHERE start_date <= CURRENT_DATE "
-                + "AND CURRENT_DATE <= NVL(end_date, CURRENT_DATE)";
+                + "FROM taxes "
+                + "WHERE start_date <= ? "
+                + "AND ? <= NVL(end_date, ?)";
         
         try {
-            pStmt = conn.prepareStatement(sql);
+            pStmt = getConn().prepareStatement(sql);
+            pStmt.setDate(1, date);
+            pStmt.setDate(2, date);
+            pStmt.setDate(3, date);
             rs = pStmt.executeQuery();
-            while (rs.next()) {
-                rate = rs.getDouble("rate");
+            if (rs.next()) {
+                taxDTO = new TaxDTO(rs.getDouble("rate"));
             }
         }
         catch (Exception e) {
@@ -44,6 +51,6 @@ public class TaxDAO {
             }
         }
         
-        return rate;
+        return taxDTO;
     }
 }

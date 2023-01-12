@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import database.CustomerDAO;
-import database.CustomerDTO;
+import conversion.Format;
 import database.ProductClassDAO;
 import database.ProductDAO;
 import database.ProductDTO;
@@ -17,9 +16,12 @@ public class Product {
     private int productClassId;
     private boolean useFlag;
 
+    /**
+     * 引数無しコンストラクタ
+     */
     public Product() {
     }
-
+    
     private Product(int id, String name, int price, int productClassId, boolean useFlag) {
         this.id = id;
         this.name = name;
@@ -27,7 +29,8 @@ public class Product {
         this.productClassId = productClassId;
         this.useFlag = useFlag;
     }
-
+    
+    // getter・setter
     public int getId() {
         return id;
     }
@@ -69,18 +72,20 @@ public class Product {
     }
 
     /**
-     * 
+     * 全商品をProduct型配列で返す。
+     * @param bool
      * @return
      */
-    public ArrayList<Product> getProductList(boolean bool) {
+    public ArrayList<Product> getArray(boolean bool) {
+        // return用
+        ArrayList<Product> productArray = new ArrayList<>();
+        
+        // DAO
         ProductDAO productDAO = new ProductDAO();
-        ArrayList<ProductDTO> productDTOList = null;
-        ArrayList<Product> productList = new ArrayList<>();
-
-        productDTOList = productDAO.getProductList(bool);
-
-        for (ProductDTO dto : productDTOList) {
-            productList.add(
+        
+        // ProductDTO型配列をProduct型配列に変換
+        for (ProductDTO dto : productDAO.getArray(bool)) {
+            productArray.add(
                     new Product(
                             dto.getId(),
                             dto.getName(),
@@ -89,123 +94,142 @@ public class Product {
                             dto.isUseFlag()));
         }
 
-        return productList;
+        return productArray;
     }
     
     /**
-     * 
+     * 全商品を連想配列で返す。
+     * @param bool
      * @return
      */
-    public Map<Integer, Object> getMapProductList(boolean bool) {
-        Map<Integer, Object> returnMap = new HashMap<>();
-        for (Product element: getProductList(bool)) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("name", element.getName());
-            map.put("price", element.getPrice());
-            map.put("product_class_id", element.getProductClassId());
-            map.put("use_flag", element.isUseFlag());
-            returnMap.put(element.getId(), map);
+    public Map<Integer, Map> getMap(boolean bool) {
+        // return用
+        Map<Integer, Map> map = new HashMap<>();
+        
+        // Product型配列をMap<Integer, Map>型配列に変換
+        for (Product element: getArray(bool)) {
+            element.toMap(map);
         }
-        return returnMap;
+        
+        return map;
     }
     
     /**
-     * 
+     * 商品分類で分けられた全商品を連結で返す。
+     * @param bool
      * @return
      */
-    public Map<Integer, Map> getProductMap(boolean bool) {
+    public Map<Integer, Map> getMapExt(boolean bool) {
+        // return用
+        Map<Integer, Map> map = new HashMap<>();
+        
+        // インスタンスを作成
         ProductClass productClass = new ProductClass();
-        Map<Integer, Map> productMap = new HashMap<>();
-        Map<Integer, String> productClassMap = productClass.getProductClassMap();
-        Map<Integer, Object> mapProduct = getMapProductList(bool);
         
-        for (Integer productId : mapProduct.keySet()) {
-            Map<String, Object> product = (Map<String, Object>)mapProduct.get(productId);
-            if (!productMap.containsKey(product.get("product_class_id"))) {
-                Map<String, Object> newMap = new HashMap<>();
-                newMap.put("name", productClassMap.get(product.get("product_class_id")));
-                newMap.put("product", new HashMap<Integer, Object>());
-                productMap.put((Integer)product.get("product_class_id"), newMap);
+        // 全商品を取得
+        Map<Integer, Map> productMap = getMap(bool);
+        
+        // 全商品分類を取得
+        Map<Integer, String> productClassMap = productClass.getMap();
+        
+        // 連想配列のキーでループ
+        for (Integer productMapKey : productMap.keySet()) {
+            
+            // キーから値を取得
+            Map<String, Object> productMapValue = productMap.get(productMapKey);
+            
+            // 商品分類の存在を確認
+            if (!map.containsKey(productMapValue.get("product_class_id"))) {
+                
+                // 商品分類をセット
+                Map<String, Object> innerMap = new HashMap<>();
+                innerMap.put("name", productClassMap.get(productMapValue.get("product_class_id")));
+                innerMap.put("product", new HashMap<Integer, Map>());
+                map.put((Integer)productMapValue.get("product_class_id"), innerMap);
             }
-            Map<Integer, Object> pMap = (Map<Integer, Object>)productMap.get(product.get("product_class_id")).get("product");
-            pMap.put(productId, mapProduct.get(productId));
+            
+            // 商品をセット
+            ((Map<Integer, Map>)(map.get(productMapValue.get("product_class_id"))
+                    .get("product"))).put(productMapKey, productMapValue);
         }
         
-        return productMap;
+        return map;
     }
 
     /**
-     * 
+     * 商品の登録処理をする。
      * @param productClassName
      * @param name
      * @param price
      * @param useFlag
      * @return
      */
-    public Map<String, Object> regProduct(String productClassName, String name, int price, boolean useFlag) {
+    public int reg(String productClassName, String name, int price, boolean useFlag) {
+        // return用
+        int result = 0;
+        
+        // DAO
         ProductDAO productDAO = new ProductDAO();
         ProductClassDAO productClassDAO = new ProductClassDAO();
-        Map<String, Object> map = new HashMap<>();
-        int product_class_id = 0;
-        int row;
-        map.put("result", false);
-        map.put("msg", "商品の登録に失敗しました");
         
+        // 引数のnullを確認
         if (productClassName != null && name != null) {
-            if (productClassName.length() <= 64 && name.length() <= 64) {
-                product_class_id = productClassDAO.searchProductClass(productClassName);
+            
+            // 引数の文字数を確認
+            if (productClassName.length() <= 32 && name.length() <= 32) {
                 
-                if (product_class_id == -1) {
-                    if (productClassDAO.regProductClass(productClassName) == 1) {
-                        product_class_id = productClassDAO.searchProductClass(productClassName);
+                // 商品分類名から商品分類識別子を探す
+                int productClassId = productClassDAO.search(productClassName);
+                
+                // 商品分類が未設定の場合
+                if (productClassId == -1) {
+                    
+                    // 商品分類を登録
+                    if (productClassDAO.reg(productClassName) == 1) {
+                        
+                        // 商品分類名から商品分類識別子を探す
+                        productClassId = productClassDAO.search(productClassName);
                     }
                     else {
-                        map.replace("msg", "新しいカテゴリの登録に失敗しました");
-                        
-                        return map;
+                        result = -2;
+                        return result;
                     }
                 }
-                row = productDAO.regProduct(
+                
+                // 商品を登録
+                result = productDAO.reg(
                         name,
                         price,
-                        product_class_id, 
-                        useFlag ? 1 : 0);
-                if (row == 1) {
-                    map.replace("result", true);
-                    map.replace("msg", "商品の登録に成功しました");
-                }
-                else if (row == -1) {
-                    map.replace("msg", "既に同じカテゴリに存在する商品名は使用できません");
-                }
+                        productClassId, 
+                        Format.booleanToInt(useFlag));
             }
         }
 
-        return map;
+        return result;
     }
     
     /**
-     * 
+     * 商品の削除処理をする。
      * @param id
      * @return
      */
-    public Map<String, Object> delProduct(int id) {
-        ProductDAO productDAO = new ProductDAO();
-        Map<String, Object> map = new HashMap<>();
-        int row;
-        map.put("result", false);
-        map.put("msg", "商品の削除に失敗しました");
+    public boolean del(int id) {
         
-        row = productDAO.delProduct(id);
-        if (row == 1) {
-            map.replace("result", true);
-            map.replace("msg", "商品の削除に成功しました");
+        // DAO
+        ProductDAO productDAO = new ProductDAO();
+        
+        // 商品を削除
+        if (Format.intToBoolean(productDAO.del(id))) {
+            return true;
         }
 
-        return map;
+        return false;
     }
     
     /**
+     * 使ってる？
      * 
+     * @deprecated
      * @return
      */
     public boolean searchProduct() {
@@ -227,5 +251,22 @@ public class Product {
             }
         }
         return false;
+    }
+    
+    /**
+     * 引数の連想配列にクラスのデータを追加する。
+     * @param outMap
+     */
+    public void toMap(Map<Integer, Map> outMap) {
+        // セット用
+        Map<String, Object> map = new HashMap<>();
+        
+        // フィールドの値をセット
+        map.put("name", getName());
+        map.put("price", getPrice());
+        map.put("product_class_id", getProductClassId());
+        map.put("use_flag", isUseFlag());
+        
+        outMap.put(getId(), map);
     }
 }

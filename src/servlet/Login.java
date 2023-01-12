@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import beans.BeanForLogin;
+import model.Employee;
 
 /**
  * Servlet implementation class Login
@@ -24,7 +25,14 @@ public class Login extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-//		response.getWriter().append("Served at: ").append(request.getContextPath());
+	    
+	    // beanを作成
+        BeanForLogin bean = new BeanForLogin();
+	    
+	    // リクエストにbeanをセット
+        request.setAttribute("bean", bean);
+	    
+	    // ログインページへ飛ぶ
 	    String disp ="/WEB-INF/jsp/login.jsp";
         RequestDispatcher dispatch = request.getRequestDispatcher(disp);
         dispatch.forward(request, response);
@@ -35,30 +43,49 @@ public class Login extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
-//		doGet(request, response);
+	    
+	    // 受信データの形式を指定
 	    request.setCharacterEncoding("UTF-8");
+	    
+	    // 必要なパラメータの存在を確認
 	    if (request.getParameter("name") != null && request.getParameter("password") != null) {
-	        BeanForLogin bean = new BeanForLogin();
-	        bean.setName(request.getParameter("name"));
-	        bean.setPassword(request.getParameter("password"));
 	        
-	        HttpSession session = null;
-	        if (bean.loginEmployee()) {
-	            session = request.getSession(true);
-	            session.setAttribute("employee", bean.getEmployee());
+	        // beanを作成
+	        BeanForLogin bean = new BeanForLogin();
+	        
+	        // 従業員のログインを処理
+	        Employee employee = new Employee();
+	        if (employee.login(
+                    request.getParameter("name"),
+                    request.getParameter("password"))) {
 	            
+	            // セッションを作成
+	            HttpSession session = request.getSession(true);
+	            
+	            // セッションに従業員データをセット
+	            session.setAttribute("employee", employee);
+	            
+	            // メインServletへ飛ぶ
 	            String url = "main";
 	            response.sendRedirect(url);
 	        }
 	        else {
+	            // beanにデータをセット
+	            bean.setName(request.getParameter("name"));
+	            bean.setMsg(employee.getId() > 0 ?
+	                    "このアカウントは使用できません" :"従業員名・パスワードが正しくありません");
+	            
+	            // リクエストにbeanをセット
 	            request.setAttribute("bean", bean);
 	            
+	            // ログインページへ飛ぶ
 	            String disp ="/WEB-INF/jsp/login.jsp";
 	            RequestDispatcher dispatch = request.getRequestDispatcher(disp);
 	            dispatch.forward(request, response);
 	        }
 	    }
 	    else {
+	        // ログインページへ飛ぶ
 	        String disp ="/WEB-INF/jsp/login.jsp";
 	        RequestDispatcher dispatch = request.getRequestDispatcher(disp);
 	        dispatch.forward(request, response);

@@ -37,6 +37,23 @@ tr:nth-child(odd) > td {
 .fw {
   font-weight: 700;
 }
+#result_popup .msg {
+  margin-bottom: 0;
+}
+#result_popup .error_msg {
+  margin-top: 0;
+}
+.bill {
+  border-bottom: 1px solid var(--text-color);
+}
+.scroll{
+  overflow-y: scroll;
+  max-height: 80vh;
+  width: 100%;
+}
+#slip_popup span {
+  display: inline-block;
+}
 /* === ボタンを表示するエリア ============================== */
 .checkArea {
   margin: 1px 4px;
@@ -45,21 +62,21 @@ tr:nth-child(odd) > td {
 }
  /* === チェックボックスのラベル（標準） ==================== */
 .checkArea label {
-  display: block;
-  border: 2px solid var(--main-color);
+  /* display: block; */
+  /* border: 2px solid var(--main-color); */
   height: 20px;
-  cursor: pointer;
+  /* cursor: pointer; */
 }
  /* === 移動BOX（標準） ===================================== */
 .checkArea .box {
   height: 14px;
   width: 14px;
-  margin: 1px;
-  background: var(--background-color);
-  transition: .3s;
+  /* margin: 1px; */
+  /* background: var(--background-color); */
+  /* transition: .3s; */
 }
  /* === ON側のチェックボックスの移動BOX（ONのとき） ========= */
 .checkArea .check:checked + label .box {
-  transform: translateX(100%);
-  background: var(--main-color);
+  /* transform: translateX(100%); */
+  /* background: var(--main-color); */
 }

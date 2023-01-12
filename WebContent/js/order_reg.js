@@ -19,6 +19,7 @@
   const SideProduct = document.querySelector("#s_p");
   const DrinkProduct = document.querySelector("#d_p");
   const CustomerPopup = document.querySelector("#customer_popup");
+
   // 注文
   const CategorySelect = document.querySelector("#category_select");
   const ProductSelect = document.querySelector("#product_select");
@@ -33,7 +34,10 @@
   const OrderTable = document.querySelector("#order_table");
   let productTr = document.querySelectorAll(".product_tr");
   const DeleteButton = document.querySelector("#delete_button");
-
+  const CommitButton = document.querySelector("#commit_button");
+  const ResultPopup = document.querySelector("#result_popup");
+  const OrderPopup = document.querySelector("#order_popup");
+  const SlipPopup = document.querySelector("#slip_popup");
 
   /**
    *
@@ -137,8 +141,9 @@
   });
 
   AddButton.addEventListener("click", () => {
+    AddButton.disabled = true;
     let errorTxet = "";
-    if (QuantityInput.value > 0) {
+    if (QuantityInput.value > 0 && QuantityInput.value <= 50) {
       let bool = true;
       productTr.forEach(element => {
         if (element.querySelector(".product_id").value == ProductSelect.value) {
@@ -256,10 +261,11 @@
       }
     }
     else {
-      errorTxet = "数量を１以上にしてください";
+      errorTxet = "数量を１以上５０以下にしてください";
     }
     QuantityInput.value = 1;
     AddErrorMsg.innerHTML = errorTxet;
+    AddButton.disabled = false;
   });
 
   DeleteButton.addEventListener("click", () => {
@@ -270,6 +276,128 @@
     });
     productTr = document.querySelectorAll(".product_tr");
     price_calculation();
+  });
+
+  CommitButton.addEventListener("click", () => {
+    if (customerId != 0) {
+      if (CheckTemp.checked && TempAddress.value == "") {
+        ResultPopup.querySelector(".error_msg").innerHTML = "一時住所が未入力です"
+        ResultPopup.classList.remove("d_n");
+      }
+      else {
+        if (productTr.length > 0) {
+          OrderPopup.classList.remove("d_n");
+        }
+        else {
+          ResultPopup.querySelector(".error_msg").innerHTML = "注文商品がありません"
+          ResultPopup.classList.remove("d_n");
+        }
+      }
+    }
+    else {
+      ResultPopup.querySelector(".error_msg").innerHTML = "注文顧客が未設定です"
+      ResultPopup.classList.remove("d_n");
+    }
+  });
+
+  OrderPopup.querySelector(".yes").addEventListener("click", () => {
+    OrderPopup.querySelector(".yes").disabled = true;
+
+    let productMap = {};
+    productTr.forEach(element => {
+      productMap["" + element.querySelector(".product_id").value] = element.querySelector(".quantity").value;
+    });
+    let json = {
+      "customer_id": customerId,
+      "product_map": productMap,
+    };
+    if (TempAddress.value != "") {
+      json["temp_address"] = TempAddress.value;
+    }
+    console.log(json);
+    fetch("../api/reg-order", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(json)
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      if (data["result"]) {
+        let order = data["order"];
+        SlipPopup.querySelector("#slip_address").innerHTML = order["address"];
+        SlipPopup.querySelector("#slip_name").innerHTML = order["customer"]["name"];
+        SlipPopup.querySelector("#slip_tel").innerHTML = order["customer"]["tel"];
+
+        Object.keys(order["order_detail"]).forEach(elementIdOut => {
+          let orderDetailProductClass = order["order_detail"][elementIdOut];
+
+          let GCInner = document.createElement("div");
+          GCInner.classList.add("g_c_inner");
+
+          let h4Element = document.createElement("h4");
+          h4Element.classList.add("out1");
+          let h4Span1Element = document.createElement("span");
+          h4Span1Element.classList.add("w50");
+          h4Span1Element.innerHTML = "■ " + orderDetailProductClass["name"];
+          h4Element.appendChild(h4Span1Element);
+          let h4Span2Element = document.createElement("span");
+          h4Span2Element.classList.add("w25");
+          h4Span2Element.classList.add("num_r");
+          h4Span2Element.innerHTML = "数量";
+          h4Element.appendChild(h4Span2Element);
+          let h4Span3Element = document.createElement("span");
+          h4Span3Element.classList.add("w25");
+          h4Span3Element.classList.add("num_r");
+          h4Span3Element.innerHTML = "金額";
+          h4Element.appendChild(h4Span3Element);
+          GCInner.appendChild(h4Element);
+
+          Object.keys(orderDetailProductClass["product"]).forEach(elementIdIn => {
+            let orderDetailProduct = orderDetailProductClass["product"][elementIdIn];
+
+            let pElement = document.createElement("p");
+            pElement.classList.add("out1");
+            let pSpan1Element = document.createElement("span");
+            pSpan1Element.classList.add("w50");
+            pSpan1Element.innerHTML = orderDetailProduct["name"];
+            pElement.appendChild(pSpan1Element);
+            let pSpan2Element = document.createElement("span");
+            pSpan2Element.classList.add("w25");
+            pSpan2Element.classList.add("num_r");
+            pSpan2Element.innerHTML = orderDetailProduct["quantity"];
+            pElement.appendChild(pSpan2Element);
+            let pSpan3Element = document.createElement("span");
+            pSpan3Element.classList.add("w25");
+            pSpan3Element.classList.add("num_r");
+            pSpan3Element.innerHTML = (Number)(orderDetailProduct["price"]) * (Number)(orderDetailProduct["quantity"]);
+            pElement.appendChild(pSpan3Element);
+            GCInner.appendChild(pElement);
+          });
+
+          SlipPopup.querySelector("#slip_order").appendChild(GCInner);
+        });
+
+        SlipPopup.querySelector("#slip_total_price").innerHTML = order["total_price"];
+        SlipPopup.querySelector("#slip_discount_price").innerHTML = order["discount_price"];
+        SlipPopup.querySelector("#slip_tax_price").innerHTML = order["tax_price"];
+        SlipPopup.querySelector("#slip_billing_price").innerHTML = order["billing_price"];
+        SlipPopup.querySelector("#slip_time").innerHTML = order["time"];
+        SlipPopup.querySelector("#slip_id").innerHTML = ("000000000000" + order["id"]).slice(-12);
+
+        OrderPopup.classList.add("d_n");
+        SlipPopup.classList.remove("d_n");
+        OrderPopup.querySelector(".yes").disabled = false;
+      }
+      else {
+        ResultPopup.querySelector(".error_msg").innerHTML = data["msg"];
+        OrderPopup.classList.add("d_n");
+        ResultPopup.classList.remove("d_n");
+        OrderPopup.querySelector(".yes").disabled = false;
+      }
+    });
   });
 
   PlusMinusButton.forEach(element => {
@@ -290,6 +418,17 @@
   });
   CustomerPopup.querySelector(".no").addEventListener("click", () => {
     CustomerPopup.classList.add("d_n");
+  });
+
+  ResultPopup.querySelector(".g_c_off").addEventListener("click", () => {
+    ResultPopup.classList.add("d_n");
+  });
+
+  OrderPopup.querySelector(".g_c_off").addEventListener("click", () => {
+    OrderPopup.classList.add("d_n");
+  });
+  OrderPopup.querySelector(".no").addEventListener("click", () => {
+    OrderPopup.classList.add("d_n");
   });
 
   setMenu(CategorySelect.value);

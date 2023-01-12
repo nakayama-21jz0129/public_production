@@ -1,36 +1,33 @@
 package database;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class CustomerDAO {
-    private Connection conn;
-
+public class CustomerDAO extends AbstractDAO{
+    
     public CustomerDAO() {
-        DbManager dm = DbManager.getDbConMgr();
-        conn = dm.getConn();
+        super();
     }
-
+    
     /**
-     * 
+     * 全顧客を返す。
      * @return
      */
-    public ArrayList<CustomerDTO> getCustomerList() {
+    public ArrayList<CustomerDTO> getArray() {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
-        ArrayList<CustomerDTO> customerDTOList = new ArrayList<>();
+        ArrayList<CustomerDTO> customerDTOArray = new ArrayList<>();
 
         String sql = "SELECT id, telephone_no, name, address, preference_product_id1, preference_product_id2 "
-                + "FROM customer";
+                + "FROM customers";
 
         try {
-            pStmt = conn.prepareStatement(sql);
+            pStmt = getConn().prepareStatement(sql);
             rs = pStmt.executeQuery();
             while (rs.next()) {
-                customerDTOList.add(
+                customerDTOArray.add(
                         new CustomerDTO(
                                 rs.getInt("id"),
                                 rs.getString("telephone_no"),
@@ -55,18 +52,26 @@ public class CustomerDAO {
             }
         }
 
-        return customerDTOList;
+        return customerDTOArray;
     }
     
-    public int regCustomer(String tel, String name, String address) {
+    /**
+     * 顧客をデータベースに登録する。
+     *  一意制約に違反した場合は-1を返す
+     * @param tel
+     * @param name
+     * @param address
+     * @return
+     */
+    public int reg(String tel, String name, String address) {
         PreparedStatement pStmt = null;
         int row = 0;
 
-        String sql = "INSERT INTO customer(telephone_no, name, address) "
+        String sql = "INSERT INTO customers(telephone_no, name, address) "
                 + "VALUES(?, ?, ?)";
 
         try {
-            pStmt = conn.prepareStatement(sql);
+            pStmt = getConn().prepareStatement(sql);
             pStmt.setString(1, tel);
             pStmt.setString(2, name);
             pStmt.setString(3, address);
@@ -96,19 +101,19 @@ public class CustomerDAO {
     }
     
     /**
-     * 
+     * idの一致する顧客を削除する。
      * @param id
      * @return
      */
-    public int delCustomer(int id) {
+    public int del(int id) {
         PreparedStatement pStmt = null;
         int row = 0;
 
-        String sql = "DELETE FROM customer "
+        String sql = "DELETE FROM customers "
                 + "WHERE id = ?";
 
         try {
-            pStmt = conn.prepareStatement(sql);
+            pStmt = getConn().prepareStatement(sql);
             pStmt.setInt(1, id);
             row = pStmt.executeUpdate();
             
@@ -133,21 +138,69 @@ public class CustomerDAO {
     }
     
     /**
-     * 
-     * @param tel
+     * 識別子から顧客を探す。
+     *  見つからない場合はnullを返す
+     * @param id
      * @return
      */
-    public CustomerDTO searchCustomer(String tel) {
+    public CustomerDTO search(int id) {
         PreparedStatement pStmt = null;
         ResultSet rs = null;
         CustomerDTO customerDTO = null;
 
         String sql = "SELECT id, telephone_no, name, address, preference_product_id1, preference_product_id2 "
-                + "FROM customer "
+                + "FROM customers "
+                + "WHERE id = ?";
+
+        try {
+            pStmt = getConn().prepareStatement(sql);
+            pStmt.setInt(1, id);
+            rs = pStmt.executeQuery();
+            if (rs.next()) {
+                customerDTO = new CustomerDTO(
+                        rs.getInt("id"),
+                        rs.getString("telephone_no"),
+                        rs.getString("name"),
+                        rs.getString("address"),
+                        rs.getInt("preference_product_id1"),
+                        rs.getInt("preference_product_id2"));
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            try {
+                if (pStmt != null)
+                    pStmt.close();
+                if (rs != null)
+                    rs.close();
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return customerDTO;
+    }
+    
+    /**
+     * 電話番号から顧客を探す。
+     *  見つからない場合はnullを返す
+     * @param tel
+     * @return
+     */
+    public CustomerDTO search(String tel) {
+        PreparedStatement pStmt = null;
+        ResultSet rs = null;
+        CustomerDTO customerDTO = null;
+
+        String sql = "SELECT id, telephone_no, name, address, preference_product_id1, preference_product_id2 "
+                + "FROM customers "
                 + "WHERE telephone_no = ?";
 
         try {
-            pStmt = conn.prepareStatement(sql);
+            pStmt = getConn().prepareStatement(sql);
             pStmt.setString(1, tel);
             rs = pStmt.executeQuery();
             if (rs.next()) {

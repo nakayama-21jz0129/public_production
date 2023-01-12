@@ -7,7 +7,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>メイン</title>
+  <title>従業員管理</title>
 
   <c:choose>
     <c:when test="${bean.employee.managerFlag}">
@@ -97,7 +97,7 @@
     <article class="generic_contents x_c">
       <h2 class="g_c_header">従業員一覧</h2>
       <div class="g_c_inner">
-        <div class="y_c">
+        <div class="y_c text_c">
           <div class="cb_button">
             <input type="checkbox" id="parameter1" checked>
             <label for="parameter1">利用可</label>
@@ -127,7 +127,7 @@
             <th class="w20">利用可・不可</th>
           </tr>
 
-          <c:forEach var="obj" items="${bean.employeeList}">
+          <c:forEach var="obj" items="${bean.employeeArray}">
             <tr class="employee_tr">
               <td class="d_n">
                 <input type="number" class="employee_id" value="${obj.id}">
@@ -166,7 +166,7 @@
 
   <footer>
     <div>
-      <small>&copy; G10 v0.8</small>
+      <small>${bean.copyright}&ensp;&ensp;${bean.version}</small>
     </div>
   </footer>
 

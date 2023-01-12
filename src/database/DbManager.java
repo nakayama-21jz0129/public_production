@@ -26,7 +26,7 @@ public class DbManager {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
             conn = DriverManager.getConnection(oraHost, oraId, oraPw);
-            System.out.println("接続完了");
+            System.out.println("接続完�?");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("接続エラー");

@@ -84,7 +84,7 @@
 		<article class="generic_contents x_c">
 			<h2 class="g_c_header">顧客一覧</h2>
 			<div class="g_c_inner">
-				<div class="y_c">
+				<div class="y_c text_c">
 					<input type="text" id="parameter" class="in1 w30 x12" maxlength="64" placeholder="電話番号・名前検索">
 					<button type="button" id="select_button" class="button1">検索</button>
 				</div>
@@ -97,7 +97,7 @@
 						<th class="w50">住所</th>
 					</tr>
 
-					<c:forEach var="obj" items="${bean.customerList}">
+					<c:forEach var="obj" items="${bean.customerArray}">
 						<tr class="customer_tr">
 							<td class="d_n"><input type="number" class="customer_id d_n" value="${obj.id}"></td>
 							<td class="customer_tel">${obj.tel}</td>
@@ -119,7 +119,7 @@
 
 	<footer>
 		<div>
-			<small>&copy; G10 v0.8</small>
+			<small>${bean.copyright}&ensp;&ensp;${bean.version}</small>
 		</div>
 	</footer>
 

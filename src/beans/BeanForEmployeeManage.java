@@ -5,18 +5,26 @@ import java.util.ArrayList;
 import model.Employee;
 
 public class BeanForEmployeeManage extends AbstractBean{
-    private ArrayList<Employee> employeeList = new ArrayList<>();
+    // 表示用
+    private ArrayList<Employee> employeeArray = new ArrayList<>();
 
+    /**
+     * 引数ありコンストラクタ
+     * @param employee
+     */
     public BeanForEmployeeManage(Employee employee) {
         super(employee);
     }
 
-    public ArrayList<Employee> getEmployeeList() {
-        return employeeList;
+    // getter・setter
+    public ArrayList<Employee> getEmployeeArray() {
+        return employeeArray;
     }
 
-    public void setEmployeeList() {
-        this.employeeList = getEmployee().getEmployeeList();
+    public void setEmployeeArray(ArrayList<Employee> employeeArray) {
+        this.employeeArray = employeeArray;
     }
-
+    
+    
+    
 }

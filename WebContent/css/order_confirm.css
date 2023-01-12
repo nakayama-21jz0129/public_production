@@ -1,0 +1,20 @@
+@charset "UTF-8";
+
+/*
+ * order_confirm.css
+ * order_confirm.jspファイル独自のcssファイル
+ */
+
+main {
+  margin-top: 28px;
+  margin-bottom: 28px;
+}
+main > article {
+  width: 75%;
+}
+.x12l {
+  margin-left: 12px;
+}
+.x12r {
+  margin-right: 12px;
+}

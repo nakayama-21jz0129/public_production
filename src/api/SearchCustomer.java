@@ -12,8 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import conversion.Format;
 import model.Customer;
 
 /**
@@ -26,30 +25,38 @@ public class SearchCustomer extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
 		// TODO Auto-generated method stub
-//		response.getWriter().append("Served at: ").append(request.getContextPath());
-	    request.setCharacterEncoding("UTF-8");
+
+	    // 受信データの形式を指定
+        request.setCharacterEncoding("UTF-8");
+        
+        // 送信データの形式を指定
         response.setContentType("application/json");
         response.setHeader("Cache-Control", "nocache");
         response.setCharacterEncoding("UTF-8");
 
-        ObjectMapper mapper = new ObjectMapper();
+        // 送信用Mapを作成
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("result", false);
         responseMap.put("msg", "");
 
+        // セッションを取得
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("employee") != null) {
-            String tel = request.getParameter("tel");
-
-            if (tel != null) {
+            
+            // 必要なパラメータの存在を確認
+            if (request.getParameter("tel") != null) {
+                
+                // インスタンスを作成
                 Customer customer = new Customer();
-                customer.setTel(tel);
-                if (customer.searchCustomer()) {
+                
+                // 電話番号から顧客を探す
+                if (customer.search(request.getParameter("tel"))) {
                     responseMap.replace("result", true);
                     responseMap.replace("msg", "顧客を確認しました");
-                    responseMap.put("customer", customer.getMapCustomer());
+                    responseMap.put("customer", customer.toMapExt());
                 }
                 else {
                     responseMap.replace("msg", "顧客を確認できませんでした");
@@ -63,17 +70,17 @@ public class SearchCustomer extends HttpServlet {
             responseMap.replace("msg", "セッションが存在しません");
         }
         
-        String responseJson = mapper.writeValueAsString(responseMap);
+        // データの送信
         PrintWriter out = response.getWriter();
-        out.print(responseJson);
+        out.print(Format.mapToJson(responseMap));
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
 		// TODO Auto-generated method stub
-//		doGet(request, response);
 	}
 
 }

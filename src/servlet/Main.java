@@ -27,19 +27,28 @@ public class Main extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // TODO Auto-generated method stub
-//		response.getWriter().append("Served at: ").append(request.getContextPath());
+
+        // セッションを取得
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("employee") != null) {
-            BeanForMain bean = new BeanForMain((Employee)session.getAttribute("employee"));
+            
+            // セッションから従業員データを取得
+            Employee employee = (Employee)session.getAttribute("employee");
+            
+            // beanの作成
+            BeanForMain bean = new BeanForMain(employee);
+            
+            // リクエストにbeanをセット
             request.setAttribute("bean", bean);
             
+            // メインページへ飛ぶ
             String disp ="/WEB-INF/jsp/main.jsp";
             RequestDispatcher dispatch = request.getRequestDispatcher(disp);
             dispatch.forward(request, response);
         }
         else {
+            // ログインServletへ飛ぶ
             String url = "login";
-    
             response.sendRedirect(url); 
         }
     }
@@ -51,7 +60,6 @@ public class Main extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // TODO Auto-generated method stub
-        doGet(request, response);
     }
 
 }

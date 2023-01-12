@@ -6,20 +6,24 @@ import model.Customer;
 import model.Employee;
 
 public class BeanForCustomerManage extends AbstractBean {
-    private ArrayList<Customer> customerList = new ArrayList<>();
-    private Customer customer = new Customer();
+    // 表示用
+    private ArrayList<Customer> customerArray = new ArrayList<>();
 
+    /**
+     * 引数ありコンストラクタ
+     * @param employee
+     */
     public BeanForCustomerManage(Employee employee) {
         super(employee);
     }
 
-    public ArrayList<Customer> getCustomerList() {
-        return customerList;
+    // getter・setter
+    public ArrayList<Customer> getCustomerArray() {
+        return customerArray;
     }
- 
-    public void setCustomerList() {
-        this.customerList = customer.getCustomerList();
+
+    public void setCustomerArray(ArrayList<Customer> customerArray) {
+        this.customerArray = customerArray;
     }
- 
-    
+
 }

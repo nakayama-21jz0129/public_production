@@ -13,9 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import conversion.Format;
 import model.Employee;
 import model.Product;
 
@@ -29,60 +27,71 @@ public class DelProduct extends HttpServlet {
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
 		// TODO Auto-generated method stub
-//		response.getWriter().append("Served at: ").append(request.getContextPath());
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+	        throws ServletException, IOException {
 		// TODO Auto-generated method stub
-//		doGet(request, response);
-	    request.setCharacterEncoding("UTF-8");
+	    
+	    // 受信データの形式を指定
+        request.setCharacterEncoding("UTF-8");
+        
+        // 送信データの形式を指定
         response.setContentType("application/json");
         response.setHeader("Cache-Control", "nocache");
         response.setCharacterEncoding("UTF-8");
 
-        ObjectMapper mapper = new ObjectMapper();
+        // 送信用Mapを作成
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("result", false);
         responseMap.put("msg", "");
         
+        // セッションを取得
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("employee") != null) {
+            
+            // セッションから従業員データを取得
             Employee employee = (Employee) session.getAttribute("employee");
+            
+            // 権限を確認
             if (employee.isManagerFlag()) {
-                try {
-                    BufferedReader buffer = new BufferedReader(request.getReader());
-                    String requestJson = buffer.readLine();
-                    Map<String, Object> requestMap = mapper.readValue(requestJson, new TypeReference<Map<String, Object>>() {
-                    });
+                
+                // 受信データを取得
+                BufferedReader buffer = new BufferedReader(request.getReader());
+                String requestJson = buffer.readLine();
+                Map<String, Object> requestMap = Format.jsonToMap(requestJson);
+                
+                // 受信データの存在を確認
+                if (requestMap != null) {
                     
-                    if (requestMap != null) {
-                        if (requestMap.containsKey("id")) {
-                            Product product = new Product();
-                            Map<String, Object> regResult = product.delProduct(Integer.parseInt((String)requestMap.get("id")));
-                            if ((boolean)regResult.get("result")) {
-                                responseMap.replace("result", true);
-                                responseMap.put("product_map", product.getProductMap(false));
-                            }
-                            responseMap.replace("msg", (String)regResult.get("msg"));
+                    // 受信データの要素を確認
+                    if (requestMap.containsKey("id")) {
+                        
+                        // インスタンスを作成
+                        Product product = new Product();
+                        
+                        // 商品を削除
+                        if (product.del(Integer.parseInt((String)requestMap.get("id")))) {
+                            responseMap.replace("result", true);
+                            responseMap.replace("msg", "商品の削除に成功しました");
+                            responseMap.put("product_map", product.getMapExt(false));
                         }
                         else {
-                            responseMap.replace("msg", "データが不足しています");
+                            responseMap.replace("msg", "商品の削除に失敗しました");
                         }
                     }
                     else {
-                        responseMap.replace("msg", "データが存在しません");
+                        responseMap.replace("msg", "データが不足しています");
                     }
                 }
-                catch (IllegalArgumentException e) {
-                    responseMap.replace("msg", "データの形式が不適切です");
-                }
-                catch (ClassCastException e) {
-                    responseMap.replace("msg", "データの型が不適切です");
+                else {
+                    responseMap.replace("msg", "データが存在しません");
                 }
             }
             else {
@@ -92,9 +101,10 @@ public class DelProduct extends HttpServlet {
         else {
             responseMap.replace("msg", "セッションが存在しません");
         }
-        String responseJson = mapper.writeValueAsString(responseMap);
+        
+        // データの送信
         PrintWriter out = response.getWriter();
-        out.print(responseJson);
+        out.print(Format.mapToJson(responseMap));
 	}
 
 }

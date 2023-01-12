@@ -77,7 +77,7 @@
   };
 
   /**
-   * 10行を一ページとして表示する。
+   * 20行を一ページとして表示する。
    */
   function setPage() {
     let page = 0;
@@ -90,14 +90,14 @@
           element.classList.remove("odd");
         }
 
-        if ((Math.floor(page / 10) + 1) != current_page) {
+        if ((Math.floor(page / 20) + 1) != current_page) {
           element.classList.add("d_n");
         }
         page++;
 
       }
     });
-    max_page = (Math.floor((page - 1) / 10) + 1);
+    max_page = (Math.floor((page - 1) / 20) + 1);
     Page.querySelector(".msg").innerHTML = current_page + " / " + max_page;
   };
 

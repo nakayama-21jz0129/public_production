@@ -3,14 +3,14 @@ package database;
 public class EmployeeDTO {
     private int id;
     private String name;
-    private boolean managerFlag;
-    private boolean useFlag;
-
+    private int managerFlag;
+    private int useFlag;
+    
     public EmployeeDTO(int id, String name, int managerFlag, int useFlag) {
-        setId(id);
-        setName(name);
-        setManagerFlag(managerFlag == 1);
-        setUseFlag(useFlag == 1);
+        this.id = id;
+        this.name = name;
+        this.managerFlag = managerFlag;
+        this.useFlag = useFlag;
     }
 
     public int getId() {
@@ -29,19 +29,20 @@ public class EmployeeDTO {
         this.name = name;
     }
 
-    public boolean isManagerFlag() {
+    public int getManagerFlag() {
         return managerFlag;
     }
 
-    public void setManagerFlag(boolean managerFlag) {
+    public void setManagerFlag(int managerFlag) {
         this.managerFlag = managerFlag;
     }
 
-    public boolean isUseFlag() {
+    public int getUseFlag() {
         return useFlag;
     }
 
-    public void setUseFlag(boolean useFlag) {
+    public void setUseFlag(int useFlag) {
         this.useFlag = useFlag;
     }
+
 }

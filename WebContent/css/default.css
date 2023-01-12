@@ -203,13 +203,16 @@ main {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  position: absolute;;
+  position: absolute;
   text-align: center;
   line-height: 28px;
   background: var(--red-color);
   font-size: 24px;
   font-weight: 700;
   cursor: pointer;
+}
+.g_c_off:hover {
+  background: var(--light-red-color);
 }
 .g_c_inner {
   width: 90%;
@@ -340,7 +343,9 @@ main {
   display: block;
   margin: 1px;
   height: 18px;
-  line-height: 18px;
+  line-height: 16px;
+  font-size: 14px;
+  border: 2px solid var(--background-color);
   background: var(--background-color);
   cursor: pointer;
 }
@@ -348,15 +353,42 @@ main {
   display: none;
 }
 .cb_button input[type="checkbox"]:checked + label {
+  border: 2px solid var(--main-color);
   background: var(--main-color);
 }
 .cb_button input[type="radio"] {
   display: none;
 }
 .cb_button input[type="radio"]:checked + label {
+  border: 2px solid var(--main-color);
   background: var(--main-color);
 }
-
+/* === ボタンを表示するエリア ============================== */
+.checkArea {
+  margin: 4px auto 4px auto;
+  width: 42px;
+  height: 24px;
+}
+ /* === チェックボックスのラベル（標準） ==================== */
+.checkArea label {
+  display: block;
+  border: 2px solid var(--main-color);
+  height: 24px;
+  cursor: pointer;
+}
+ /* === 移動BOX（標準） ===================================== */
+.checkArea .box {
+  height: 18px;
+  width: 18px;
+  margin: 1px;
+  background: var(--background-color);
+  transition: .3s;
+}
+ /* === ON側のチェックボックスの移動BOX（ONのとき） ========= */
+.checkArea .check:checked + label .box {
+  transform: translateX(100%);
+  background: var(--main-color);
+}
 /* 入出力 */
 .in1 {
   width: 100%;

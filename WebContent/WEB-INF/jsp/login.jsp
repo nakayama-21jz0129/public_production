@@ -39,7 +39,7 @@
 
   <footer>
     <div>
-      <small>&copy; G10 v0.8</small>
+      <small>${bean.copyright}&ensp;&ensp;${bean.version}</small>
     </div>
   </footer>
 

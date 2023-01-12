@@ -11,14 +11,18 @@ public class ProductClass {
     private int id;
     private String name;
 
+    /**
+     * 引数無しコンストラクタ
+     */
     public ProductClass() {
     }
 
-    public ProductClass(int id, String name) {
+    private ProductClass(int id, String name) {
         this.id = id;
         this.name = name;
     }
 
+    // getter・setter
     public int getId() {
         return id;
     }
@@ -34,18 +38,50 @@ public class ProductClass {
     public void setName(String name) {
         this.name = name;
     }
-
-    public Map<Integer, String> getProductClassMap() {
+    
+    /**
+     * 全商品分類をProductClass型配列で返す。
+     * @return
+     */
+    public ArrayList<ProductClass> getArray() {
+        // return用
+        ArrayList<ProductClass> array = new ArrayList<>();
+        
+        // DAO
         ProductClassDAO productClassDAO = new ProductClassDAO();
-        ArrayList<ProductClassDTO> productClassDTOList = null;
-        Map<Integer, String> productClassList = new HashMap<>();
+        
+        // ProductClassDTO型配列をProductClass型配列に変換
+        for (ProductClassDTO dto : productClassDAO.getArray()) {
+            array.add(new ProductClass(
+                    dto.getId(),
+                    dto.getName()));
+        }
+        
+        return array;
+    }
 
-        productClassDTOList = productClassDAO.getProductClassList();
-
-        for (ProductClassDTO dto : productClassDTOList) {
-            productClassList.put(dto.getId(), dto.getName());
+    /**
+     * 全商品分類をMap<Integer, String>型で返す。
+     * @return
+     */
+    public Map<Integer, String> getMap() {
+        // return用
+        Map<Integer, String> map = new HashMap<>();
+        
+        // ProductClass型配列を連想配列に変換
+        for (ProductClass element : getArray()) {
+            element.toMap(map);
         }
 
-        return productClassList;
+        return map;
+    }
+    
+    /**
+     * 引数の連想配列にクラスのデータを追加する。
+     * @param map
+     */
+    public void toMap(Map<Integer, String> map) {
+        // フィールドの値をセット
+        map.put(getId(), getName());
     }
 }

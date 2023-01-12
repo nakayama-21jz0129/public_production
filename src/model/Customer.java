@@ -15,6 +15,9 @@ public class Customer {
     private int productId1;
     private int productId2;
 
+    /**
+     * 引数無しコンストラクタ
+     */
     public Customer() {
     }
 
@@ -26,7 +29,7 @@ public class Customer {
         this.productId1 = productId1;
         this.productId2 = productId2;
     }
-
+    // getter・setter
     public int getId() {
         return id;
     }
@@ -76,18 +79,21 @@ public class Customer {
     }
 
     /**
-     * 
+     * 全顧客をCustomer型配列で返す。
      * @return
      */
-    public ArrayList<Customer> getCustomerList() {
+    public ArrayList<Customer> getArray() {
+        // return用
+        ArrayList<Customer> array = new ArrayList<>();
+        
+        // DAO・DTO
         CustomerDAO customerDAO = new CustomerDAO();
-        ArrayList<CustomerDTO> customerDTOList = null;
-        ArrayList<Customer> customerList = new ArrayList<>();
-
-        customerDTOList = customerDAO.getCustomerList();
-
-        for (CustomerDTO dto : customerDTOList) {
-            customerList.add(
+        ArrayList<CustomerDTO> customerDTOArray = null;
+        
+        // CustomerDTO型配列をCustomer型配列に変換
+        customerDTOArray = customerDAO.getArray();
+        for (CustomerDTO dto : customerDTOArray) {
+            array.add(
                     new Customer(
                             dto.getId(),
                             dto.getTel(),
@@ -97,110 +103,96 @@ public class Customer {
                             dto.getProductId2()));
         }
 
-        return customerList;
+        return array;
     }
 
     /**
-     * 
+     * 顧客の登録処理をする。
      * @param tel
      * @param name
      * @param address
      * @return
      */
-    public Map<String, Object> regCustomer(String tel, String name, String address) {
+    public int reg(String tel, String name, String address) {
+        // return用
+        int result = 0;
+        
+        // DAO
         CustomerDAO customerDAO = new CustomerDAO();
-        Map<String, Object> map = new HashMap<>();
-        int row;
-        map.put("result", false);
-        map.put("msg", "顧客の登録に失敗しました");
 
+        // 引数のnullを確認
         if (tel != null && name != null && address != null) {
+            
+            // 引数の文字数を確認
             if (tel.length() <= 15 && name.length() <= 64 && address.length() <= 192) {
-                row = customerDAO.regCustomer(
+                result = customerDAO.reg(
                         tel,
                         name,
                         address);
-                if (row == 1) {
-                    map.replace("result", true);
-                    map.replace("msg", "顧客の登録に成功しました");
-                }
-                else if (row == -1) {
-                    map.replace("msg", "既に使用されている電話番号です");
-                }
             }
         }
 
-        return map;
+        return result;
 
     }
 
     /**
-     * 
+     * 全顧客を連想配列型配列で返す。
+     * @deprecated
+     * @see getMap
      * @return
      */
-    public ArrayList<Map<String, Object>> getMapCustomerList() {
-        ArrayList<Map<String, Object>> list = new ArrayList<>();
-        Product product = new Product();
-        for (Customer element : getCustomerList()) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", element.getId());
-            map.put("tel", element.getTel());
-            map.put("name", element.getName());
-            map.put("address", element.getAddress());
-            map.put("product1", "");
-            if (element.getProductId1() != 0) {
-                product.setId(element.getProductId1());
-                if (product.searchProduct()) {
-                    map.replace("product1", product.getName());
-                }
-            }
-            map.put("product2", "");
-            if (element.getProductId2() != 0) {
-                product.setId(element.getProductId2());
-                if (product.searchProduct()) {
-                    map.replace("product2", product.getName());
-                }
-            }
-            
-            list.add(map);
+    public ArrayList<Map<String, Object>> getMapArray() {
+        // return用
+        ArrayList<Map<String, Object>> array = new ArrayList<>();
+        
+        // Customer型配列をMap<String, Object>型配列に変換
+        for (Customer element : getArray()) {
+            array.add(element.toMap());
         }
-        return list;
+        
+        return array;
     }
     
     /**
-     * 
+     * 顧客の削除処理をする。
      * @param id
      * @return
      */
-    public Map<String, Object> delCustomer(int id) {
-        CustomerDAO customerDAO = new CustomerDAO();
-        Map<String, Object> map = new HashMap<>();
-        int row;
-        map.put("result", false);
-        map.put("msg", "顧客の削除に失敗しました");
+    public boolean del(int id) {
         
-        row = customerDAO.delCustomer(id);
-        if (row == 1) {
-            map.replace("result", true);
-            map.replace("msg", "顧客の削除に成功しました");
+        // DAO
+        CustomerDAO customerDAO = new CustomerDAO();
+        
+        // 顧客を削除
+        if (customerDAO.del(id) == 1) {
+            return true;
         }
 
-        return map;
+        return false;
     }
     
     /**
-     * 
+     * 電話番号から顧客を探す。
      * @return
      */
-    public boolean searchCustomer() {
+    public boolean search(String tel) {
+        // DAO・DTO
         CustomerDAO customerDAO = new CustomerDAO();
         CustomerDTO customerDTO = null;
 
-        if (getTel() != null) {
-            if (getTel().length() <= 15) {
-                customerDTO = customerDAO.searchCustomer(getTel());
+        // 電話番号を確認
+        if (tel != null) {
+            
+            // 電話番号の文字数を確認
+            if (tel.length() <= 15) {
+                
+                // 顧客を探す
+                customerDTO = customerDAO.search(tel);
                 if (customerDTO != null) {
+                    // フィールドに値をセット
                     setId(customerDTO.getId());
+                    setTel(customerDTO.getTel());
                     setName(customerDTO.getName());
                     setAddress(customerDTO.getAddress());
                     setProductId1(customerDTO.getProductId1());
@@ -214,31 +206,82 @@ public class Customer {
     }
     
     /**
-     * 
+     * 識別子から顧客を探す。
+     * @param id
      * @return
      */
-    public Map<String, Object> getMapCustomer() {
+    public boolean search(int id) {
+        // DAO・DTO
+        CustomerDAO customerDAO = new CustomerDAO();
+        CustomerDTO customerDTO = null;
+
+        // 識別子を確認
+        if (id != 0) {
+                
+            // 顧客を探す
+            customerDTO = customerDAO.search(id);
+            if (customerDTO != null) {
+                
+                // フィールドに値をセット
+                setId(customerDTO.getId());
+                setTel(customerDTO.getTel());
+                setName(customerDTO.getName());
+                setAddress(customerDTO.getAddress());
+                setProductId1(customerDTO.getProductId1());
+                setProductId2(customerDTO.getProductId2());
+                
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * クラスのデータを連想配列で返す。
+     * @return
+     */
+    public Map<String, Object> toMap() {
+        // return用
         Map<String, Object> map = new HashMap<>();
+        
+        // フィールドの値をセット
         map.put("id", getId());
         map.put("tel", getTel());
         map.put("name", getName());
         map.put("address", getAddress());
         
+        return map;
+    }
+    
+    /**
+     * クラスのデータを連想配列で返す。
+     *  商品名を含む
+     * @param productMap
+     * @return
+     */
+    public Map<String, Object> toMapExt() {
+        // return用
+        Map<String, Object> map = toMap();
+        
+        // インスタンスを作成
         Product product = new Product();
         
+        // 全商品を取得
+        Map<Integer, Map> productMap = product.getMap(true);
+        
+        // 対象商品名のセット
         map.put("product1", "");
         if (getProductId1() != 0) {
-            product.setId(getProductId1());
-            if (product.searchProduct()) {
-                map.replace("product1", product.getName());
+            if (productMap.containsKey(getProductId1())) {
+                map.replace("product1", productMap.get(getProductId1()).get("name"));
             }
         }
         
+        // 対象商品名のセット
         map.put("product2", "");
         if (getProductId2() != 0) {
-            product.setId(getProductId2());
-            if (product.searchProduct()) {
-                map.replace("product2", product.getName());
+            if (productMap.containsKey(getProductId2())) {
+                map.replace("product2", productMap.get(getProductId2()).get("name"));
             }
         }
         

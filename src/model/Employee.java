@@ -1,12 +1,12 @@
 package model;
 
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import beans.BeanForLogin;
+import conversion.Format;
+import conversion.Password;
 import database.EmployeeDAO;
 import database.EmployeeDTO;
 
@@ -16,19 +16,20 @@ public class Employee {
     private boolean managerFlag;
     private boolean useFlag;
 
-    private BeanForLogin bean;
-
-    public Employee(BeanForLogin bean) {
-        this.bean = bean;
+    /**
+     * 引数無しコンストラクタ
+     */
+    public Employee() {
     }
 
     private Employee(int id, String name, boolean managerFlag, boolean useFlag) {
-        this.id = id;
-        this.name = name;
-        this.managerFlag = managerFlag;
-        this.useFlag = useFlag;
+        setId(id);
+        setName(name);
+        setManagerFlag(managerFlag);
+        setUseFlag(useFlag);
     }
 
+    // getter・setter
     public int getId() {
         return id;
     }
@@ -62,172 +63,217 @@ public class Employee {
     }
 
     /**
-     * 
+     * 従業員のログイン処理をする。
+     * @param name
+     * @param password
      * @return
      */
-    public boolean loginEmployee() {
-        EmployeeDAO employeeDAO = new EmployeeDAO();
-        EmployeeDTO employeeDTO = null;
-        boolean bool = false;
-
-        if (bean.getName() != null && bean.getPassword() != null) {
-            if (bean.getName().length() <= 64 && bean.getPassword().length() == 64) {
+    public boolean login(String name, String password) {
+        
+        // 引数のnullを確認
+        if (name != null && password != null) {
+            
+            // 引数の文字数を確認
+            if (name.length() <= 64 && password.length() == 64) {
                 try {
-                    MessageDigest digest = MessageDigest.getInstance("SHA-512");
-                    byte[] passwordHash;
-                    String password = bean.getPassword() + "xYZ3n4e&7";
-                    passwordHash= digest.digest(password.getBytes());
-                    for (int i = 0; i < 5; i++) {
-                        passwordHash= digest.digest(passwordHash);
-                    }
-                    StringBuilder password16 = new StringBuilder(2 * passwordHash.length);
-                    for(byte b: passwordHash) {
-                        password16.append(String.format("%02X", b&0xff) );
-                    }
-                    
-                    employeeDTO = employeeDAO.searchEmployee(bean.getName(), password16.toString());
-                    if (employeeDTO != null) {
-                        setId(employeeDTO.getId());
-                        setName(employeeDTO.getName());
-                        setManagerFlag(employeeDTO.isManagerFlag());
-                        setUseFlag(employeeDTO.isUseFlag());
+                    // 従業員を探す
+                    if (search(name, Password.hash(password))) {
+                        
+                        // 使用可能かを確認
                         if (isUseFlag()) {
-                            bool = true;
-                        } else {
-                            bean.setMsg("このアカウントは使用できません");
+                            return true;
                         }
-                    } else {
-                        bean.setMsg("従業員名・パスワードが正しくありません");
                     }
                 }
+                // Password.hashメソッドからスロー
                 catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
-                    bean.setMsg("処理に問題が発生しました");
                 }
-            } else {
-                // フロントサイドで対処するので表示されない
-                bean.setMsg("従業員名は64文字以内で入力してください");
             }
-        } else {
-            // フロントサイドで対処するので表示されない
-            bean.setMsg("従業員名・パスワードを入力してください");
         }
 
-        return bool;
-    }
-
-    /**
-     * 
-     * @return
-     */
-    public ArrayList<Employee> getEmployeeList() {
-        EmployeeDAO employeeDAO = new EmployeeDAO();
-        ArrayList<EmployeeDTO> employeeDTOList = null;
-        ArrayList<Employee> employeeList = new ArrayList<>();
-
-        employeeDTOList = employeeDAO.getEmployeeList();
-
-        for (EmployeeDTO dto : employeeDTOList) {
-            employeeList.add(
-                    new Employee(
-                            dto.getId(),
-                            dto.getName(),
-                            dto.isManagerFlag(),
-                            dto.isUseFlag()));
-        }
-
-        return employeeList;
+        return false;
     }
     
     /**
-     * 
+     * 名前とパスワード(ハッシュ化済)から従業員を探す。
+     *  見つかればフィールドにデータをセット
+     * @param name
+     * @param password
      * @return
      */
-    public ArrayList<Map<String, Object>> getMapEmployeeList() {
-        ArrayList<Map<String, Object>> list = new ArrayList<>();
-        for (Employee element: getEmployeeList()) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", element.getId());
-            map.put("name", element.getName());
-            map.put("manager_flag", element.isManagerFlag());
-            map.put("use_flag", element.isUseFlag());
-            list.add(map);
+    public boolean search(String name, String password) {
+        // DAO・DTO
+        EmployeeDAO employeeDAO = new EmployeeDAO();
+        EmployeeDTO employeeDTO = null;
+        
+        // 引数のnullを確認
+        if (name != null && password != null) {
+            
+            // 引数の文字数を確認
+            if (name.length() <= 64 && password.length() == 128) {
+                
+                // 従業員を探す
+                employeeDTO = employeeDAO.search(name, password);
+                if (employeeDTO != null) {
+                    // フィールドに値をセット
+                    setId(employeeDTO.getId());
+                    setName(employeeDTO.getName());
+                    setManagerFlag(Format.intToBoolean(employeeDTO.getManagerFlag()));
+                    setUseFlag(Format.intToBoolean(employeeDTO.getUseFlag()));
+                    
+                    return true;
+                }
+            }
         }
-        return list;
+
+        return false;
+    }
+    
+    /**
+     * 識別子から従業員を探す。
+     *  見つかればフィールドにデータをセット
+     * @param id
+     * @return
+     */
+    public boolean search(int id) {
+        // DAO・DTO
+        EmployeeDAO employeeDAO = new EmployeeDAO();
+        EmployeeDTO employeeDTO = null;
+        
+        // 引数を確認
+        if (id != 0) {
+                
+            // 従業員を探す
+            employeeDTO = employeeDAO.search(id);
+            if (employeeDTO != null) {
+                // フィールドに値をセット
+                setId(employeeDTO.getId());
+                setName(employeeDTO.getName());
+                setManagerFlag(Format.intToBoolean(employeeDTO.getManagerFlag()));
+                setUseFlag(Format.intToBoolean(employeeDTO.getUseFlag()));
+                
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
-     * 
+     * 全従業員をEmployee型配列で返す。
+     * @return
+     */
+    public ArrayList<Employee> getArray() {
+        // return用
+        ArrayList<Employee> array = new ArrayList<>();
+        
+        // DAO
+        EmployeeDAO employeeDAO = new EmployeeDAO();
+        
+        // EmployeeDTO型配列をEmployee型配列に変換
+        for (EmployeeDTO dto : employeeDAO.getArray()) {
+            array.add(
+                    new Employee(
+                            dto.getId(),
+                            dto.getName(),
+                            Format.intToBoolean(dto.getManagerFlag()),
+                            Format.intToBoolean(dto.getUseFlag())));
+        }
+
+        return array;
+    }
+    
+    /**
+     * 全従業員を連想配列型配列で返す。
+     * @deprecated
+     * @see getMap
+     * @return
+     */
+    public ArrayList<Map<String, Object>> getMapArray() {
+        // return用
+        ArrayList<Map<String, Object>> array = new ArrayList<>();
+        
+        // Employee型配列をMap<String, Object>型配列に変換
+        for (Employee element: getArray()) {
+            array.add(element.toMap());
+        }
+        
+        return array;
+    }
+
+    /**
+     * 従業員の登録処理をする。
      * @param name
      * @param password
      * @param managerFlag
      * @param useFlag
-     * @return
+     * @return 
      */
-    public Map<String, Object> regEmployee(String name, String password, boolean managerFlag, boolean useFlag) {
-        EmployeeDAO employeeDAO = new EmployeeDAO();
-        Map<String, Object> map = new HashMap<>();
-        int row;
-        map.put("result", false);
-        map.put("msg", "従業員の登録に失敗しました");
+    public int reg(String name, String password, boolean managerFlag, boolean useFlag) {
+        // return用
+        int result = 0;
         
+        // DAO
+        EmployeeDAO employeeDAO = new EmployeeDAO();
+        
+        // 引数のnullを確認
         if (name != null && password != null) {
+            
+            // 引数の文字数を確認
             if (name.length() <= 64 && password.length() == 64) {
                 try {
-                    MessageDigest digest = MessageDigest.getInstance("SHA-512");
-                    byte[] passwordHash;
-                    password += "xYZ3n4e&7";
-                    passwordHash= digest.digest(password.getBytes());
-                    for (int i = 0; i < 5; i++) {
-                        passwordHash= digest.digest(passwordHash);
-                    }
-                    StringBuilder password16 = new StringBuilder(2 * passwordHash.length);
-                    for(byte b: passwordHash) {
-                        password16.append(String.format("%02X", b&0xff) );
-                    }
-                    
-                    row = employeeDAO.regEmployee(
+                    // 従業員を登録
+                    result = employeeDAO.reg(
                             name,
-                            password16.toString(),
-                            managerFlag ? 1 : 0, 
-                            useFlag ? 1 : 0);
-                    if (row == 1) {
-                        map.replace("result", true);
-                        map.replace("msg", "従業員の登録に成功しました");
-                    }
-                    else if (row == -1) {
-                        map.replace("msg", "既に存在する従業員名は使用できません");
-                    }
+                            Password.hash(password),
+                            Format.booleanToInt(managerFlag), 
+                            Format.booleanToInt(useFlag));
                 }
+                // Password.hashメソッドからスロー
                 catch (NoSuchAlgorithmException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        return map;
+        return result;
 
     }
     
     /**
-     * 
+     * 従業員の削除処理をする。
      * @param id
      * @return
      */
-    public Map<String, Object> delEmployee(int id) {
-        EmployeeDAO employeeDAO = new EmployeeDAO();
-        Map<String, Object> map = new HashMap<>();
-        int row;
-        map.put("result", false);
-        map.put("msg", "従業員の削除に失敗しました");
+    public boolean del(int id) {
         
-        row = employeeDAO.delEmployee(id);
-        if (row == 1) {
-            map.replace("result", true);
-            map.replace("msg", "従業員の削除に成功しました");
+        // DAO
+        EmployeeDAO employeeDAO = new EmployeeDAO();
+        
+        // 従業員を削除
+        if (Format.intToBoolean(employeeDAO.del(id))) {
+            return true;
         }
 
-        return map;
+        return false;
 
+    }
+    
+    /**
+     * クラスのデータを連想配列で返す。
+     * @return
+     */
+    public Map<String, Object> toMap() {
+        // return用
+        Map<String, Object> map = new HashMap<>();
+        
+        // フィールドの値をセット
+        map.put("id", getId());
+        map.put("name", getName());
+        map.put("manager_flag", isManagerFlag());
+        map.put("use_flag", isUseFlag());
+        
+        return map;
     }
 }

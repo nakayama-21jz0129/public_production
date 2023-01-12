@@ -12,15 +12,12 @@ main {
 main > article {
   width: 75%;
 }
-.y_c {
-  text-align: center;
-}
 .customer_tr {
   cursor: pointer;
 }
-.result_popup .msg {
+#result_popup .msg {
   margin-bottom: 0;
 }
-.result_popup .error_msg {
+#result_popup .error_msg {
   margin-top: 0;
 }

@@ -12,44 +12,41 @@ main {
 main > article {
   width: 75%;
 }
-.y_c {
-  text-align: center;
-}
 .w15 > h3 {
   text-align: center;
 }
 .employee_tr {
   cursor: pointer;
 }
-.result_popup .msg {
+#result_popup .msg {
   margin-bottom: 0;
 }
-.result_popup .error_msg {
+#result_popup .error_msg {
   margin-top: 0;
 }
 /* === ボタンを表示するエリア ============================== */
-.checkArea {
+/* .checkArea {
   margin: 4px auto 4px auto;
   width: 42px;
   height: 24px;
-}
+} */
  /* === チェックボックスのラベル（標準） ==================== */
-.checkArea label {
+/* .checkArea label {
   display: block;
   border: 2px solid var(--main-color);
   height: 24px;
   cursor: pointer;
-}
+} */
  /* === 移動BOX（標準） ===================================== */
-.checkArea .box {
+/* .checkArea .box {
   height: 18px;
   width: 18px;
   margin: 1px;
   background: var(--background-color);
   transition: .3s;
-}
+} */
  /* === ON側のチェックボックスの移動BOX（ONのとき） ========= */
-.checkArea .check:checked + label .box {
+/* .checkArea .check:checked + label .box {
   transform: translateX(100%);
   background: var(--main-color);
-}
+} */
